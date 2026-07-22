@@ -21,18 +21,17 @@ public static class SetsAndMaps
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
 {
-    var wordSet = new HashSet<string>(words);
     var result = new List<string>();
+    var wordSet = new HashSet<string>(words);
 
-    foreach (var word in words)
+    foreach (string word in words)
     {
-        // Ignore words like "aa"
         if (word[0] == word[1])
             continue;
 
         string reverse = $"{word[1]}{word[0]}";
 
-        if (wordSet.Contains(reverse) && string.Compare(word, reverse) < 0)
+        if (wordSet.Contains(reverse) && word.CompareTo(reverse) < 0)
         {
             result.Add($"{word} & {reverse}");
         }
@@ -95,32 +94,41 @@ public static class SetsAndMaps
 {
     var letters = new Dictionary<char, int>();
 
-    word1 = word1.Replace(" ", "").ToLower();
-    word2 = word2.Replace(" ", "").ToLower();
-
-    if (word1.Length != word2.Length)
-        return false;
+    int length1 = 0;
+    int length2 = 0;
 
     foreach (char c in word1)
     {
-        if (letters.ContainsKey(c))
-            letters[c]++;
-        else
-            letters[c] = 1;
+        if (c != ' ')
+        {
+            char letter = char.ToLowerInvariant(c);
+            length1++;
+
+            if (letters.TryGetValue(letter, out int count))
+                letters[letter] = count + 1;
+            else
+                letters[letter] = 1;
+        }
     }
 
     foreach (char c in word2)
     {
-        if (!letters.ContainsKey(c))
-            return false;
+        if (c != ' ')
+        {
+            char letter = char.ToLowerInvariant(c);
+            length2++;
 
-        letters[c]--;
+            if (!letters.TryGetValue(letter, out int count))
+                return false;
 
-        if (letters[c] < 0)
-            return false;
+            if (count == 0)
+                return false;
+
+            letters[letter] = count - 1;
+        }
     }
 
-    return true;
+    return length1 == length2;
 }
 
     /// <summary>
